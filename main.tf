@@ -94,10 +94,10 @@ locals {
 # https://github.com/hashicorp/terraform-provider-template/issues/85
 # https://github.com/hashicorp/terraform/issues/26838
 locals {
-  override_policies = [replace(replace(replace(var.additional_bucket_policy,
+  override_policy = replace(replace(replace(var.additional_bucket_policy,
     "$${origin_path}", local.origin_path),
     "$${bucket_name}", local.bucket),
-  "$${cloudfront_origin_access_identity_iam_arn}", local.cf_access.arn)]
+  "$${cloudfront_origin_access_identity_iam_arn}", local.cf_access.arn)
 }
 
 data "aws_partition" "current" {
@@ -133,7 +133,7 @@ resource "random_password" "referer" {
 data "aws_iam_policy_document" "s3_origin" {
   count = local.s3_origin_enabled ? 1 : 0
 
-  override_policy_documents = local.override_policies
+  override_json = local.override_policy
 
   statement {
     sid = "S3GetObjectForCloudFront"
@@ -163,7 +163,7 @@ data "aws_iam_policy_document" "s3_origin" {
 data "aws_iam_policy_document" "s3_website_origin" {
   count = local.website_enabled ? 1 : 0
 
-  override_policy_documents = local.override_policies
+  override_json = local.override_policy
 
   statement {
     sid = "S3GetObjectForCloudFront"
