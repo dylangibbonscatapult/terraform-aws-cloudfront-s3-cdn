@@ -93,12 +93,6 @@ locals {
 ## Make up for deprecated template_file and lack of templatestring
 # https://github.com/hashicorp/terraform-provider-template/issues/85
 # https://github.com/hashicorp/terraform/issues/26838
-locals {
-  override_policy_documents = [replace(replace(replace(var.additional_bucket_policy,
-    "$${origin_path}", local.origin_path),
-    "$${bucket_name}", local.bucket),
-  "$${cloudfront_origin_access_identity_iam_arn}", local.cf_access.arn)]
-}
 
 data "aws_partition" "current" {
   count = local.enabled ? 1 : 0
@@ -133,8 +127,6 @@ resource "random_password" "referer" {
 data "aws_iam_policy_document" "s3_origin" {
   count = local.s3_origin_enabled ? 1 : 0
 
-  override_policy_documents = [local.override_policy.json]
-
   statement {
     sid = "S3GetObjectForCloudFront"
 
@@ -162,8 +154,6 @@ data "aws_iam_policy_document" "s3_origin" {
 
 data "aws_iam_policy_document" "s3_website_origin" {
   count = local.website_enabled ? 1 : 0
-
-  override_policy_documents = [local.override_policy.json]
 
   statement {
     sid = "S3GetObjectForCloudFront"
